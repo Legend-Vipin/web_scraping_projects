@@ -67,7 +67,7 @@ web_scraping_projects/
 
 3.  **Clone the Repository**:
     ```powershell
-    git clone <your-repo-url>
+    git clone https://github.com/Legend-Vipin/web_scraping_projects
     cd web_scraping_projects
     ```
 
@@ -85,7 +85,7 @@ web_scraping_projects/
 
 3.  **Clone the Repository**:
     ```bash
-    git clone <your-repo-url>
+    git clone https://github.com/Legend-Vipin/web_scraping_projects
     cd web_scraping_projects
     ```
 
