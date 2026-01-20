@@ -1,0 +1,111 @@
+# Testing Infrastructure Guide
+
+This guide provides the standard testing structure and examples for the project.
+
+## Directory Structure
+
+Create the following directory structure in your project root:
+
+```text
+tests/
+├── __init__.py
+├── conftest.py              # Global fixtures and configuration
+├── unit/                    # Fast, isolated tests
+│   ├── __init__.py
+│   ├── test_utils.py
+│   └── test_validators.py
+├── integration/             # Tests involving multiple components
+│   ├── __init__.py
+│   └── test_flows.py
+└── fixtures/                # Static data for testing
+    └── sample_response.json
+```
+
+## Configuration
+
+### `conftest.py`
+
+```python
+import pytest
+import logging
+from typing import Generator
+
+@pytest.fixture(scope="session")
+def configure_logging():
+    """Setup logging for test session."""
+    logging.basicConfig(level=logging.INFO)
+
+@pytest.fixture
+def mock_config():
+    """Return a mock configuration dictionary."""
+    return {
+        "max_retries": 1,
+        "timeout": 5,
+        "headless": True
+    }
+```
+
+## Unit Test Example
+
+### `tests/unit/test_utils.py`
+
+```python
+import pytest
+from src.common.utils import clean_price
+
+class TestCleanPrice:
+    def test_clean_price_valid_inputs(self):
+        """Test standard price formats."""
+        assert clean_price("₹1,234") == 1234
+        assert clean_price("$99.99") == 99
+        
+    def test_clean_price_edge_cases(self):
+        """Test null and invalid inputs."""
+        assert clean_price(None) is None
+        assert clean_price("") is None
+        assert clean_price("Free") is None
+
+    def test_clean_price_decimals(self):
+        """Ensure decimals are handled correctly."""
+        assert clean_price("10.50") == 10
+```
+
+## Integration Test Example
+
+### `tests/integration/test_scrapers.py`
+
+```python
+import pytest
+from unittest.mock import MagicMock, patch
+
+@pytest.mark.asyncio
+async def test_scraper_flow():
+    """Test the basic scraping flow with mocked network calls."""
+    # Mock the http client to avoid actual network requests
+    with patch('httpx.AsyncClient') as mock_client:
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.text = "<html>Product Title</html>"
+        mock_client.return_value.__aenter__.return_value.get.return_value = mock_response
+        
+        # Call your scraper function here
+        # result = await scrape_product("http://test.com")
+        # assert result['title'] == "Product Title"
+```
+
+## Running Tests
+
+Add these dependencies to your `pyproject.toml` or `requirements.txt`:
+- `pytest`
+- `pytest-asyncio`
+- `pytest-cov`
+- `pytest-mock`
+
+Run commands:
+```bash
+# Run all tests
+uv run pytest tests/ -v
+
+# Run with coverage
+uv run pytest tests/ -v --cov=src --cov-report=term
+```

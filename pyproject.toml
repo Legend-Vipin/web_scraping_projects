@@ -1,0 +1,108 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "web-scraping-projects"
+version = "2.0.0"
+description = "Professional web scraping tools for e-commerce, jobs, news, and real estate"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Vipin"}
+]
+keywords = ["web-scraping", "playwright", "automation", "data-extraction"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+
+dependencies = [
+    "playwright>=1.40.0",
+    "pandas>=2.1.0",
+    "fake-useragent>=1.4.0",
+    "aiofiles>=23.2.0",
+    "lxml>=5.1.0",
+    "beautifulsoup4>=4.12.0",
+    "ujson>=5.9.0",
+    "playwright-stealth>=1.0.6",
+    "httpx>=0.25.0",
+    "python-dotenv>=1.0.0",
+    "tenacity>=8.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.7.0",
+    "ruff>=0.0.285",
+    "mypy>=1.5.0",
+]
+
+[project.scripts]
+scrape-ecommerce = "src.ecommerce.tracker:main"
+scrape-jobs = "src.jobs.scraper:main"
+scrape-news = "src.news.aggregator:main"
+scrape-realestate = "src.realestate.crawler:main"
+
+[project.urls]
+Homepage = "https://github.com/Legend-Vipin/web_scraping_projects"
+Repository = "https://github.com/Legend-Vipin/web_scraping_projects"
+Issues = "https://github.com/Legend-Vipin/web_scraping_projects/issues"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+packages = ["src", "src.common", "src.ecommerce", "src.jobs", "src.news", "src.realestate"]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"

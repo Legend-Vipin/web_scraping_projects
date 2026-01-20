@@ -1,0 +1,70 @@
+site_name: Web Scraping Projects
+site_description: Documentation for enterprise-grade web scraping collection
+site_author: Maintainer Name
+
+repo_url: https://github.com/Legend-Vipin/web_scraping_projects
+repo_name: web_scraping_projects
+
+theme:
+  name: material
+  language: en
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_root_heading: true
+            show_source: true
+
+nav:
+  - Home: index.md
+  - Scrapers:
+      - E-commerce: scrapers/ecommerce.md
+      - Jobs: scrapers/jobs.md
+      - News: scrapers/news.md
+      - Real Estate: scrapers/realestate.md
+  - Development:
+      - Setup: development/setup.md
+      - Testing: development/testing.md
+      - Contributing: development/contributing.md
+  - API Reference:
+      - Common Utils: api/common.md
+      - Validators: api/validators.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true

@@ -1,0 +1,60 @@
+# Makefile for Web Scraping Projects
+
+# Variables
+PYTHON := uv run python
+PYTEST := uv run pytest
+UV_COMPILE := uv pip compile
+UV_SYNC := uv pip sync
+SRC_DIR := src
+TEST_DIR := tests
+
+.PHONY: help install dev-install format lint test test-unit test-integration clean docs
+
+help:  ## Show this help message
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+install:  ## Install production dependencies
+	@echo "Installing dependencies..."
+	$(UV_SYNC) requirements.txt
+	@echo "✓ Installation complete"
+
+dev-install:  ## Install development dependencies
+	@echo "Installing development dependencies..."
+	$(UV_SYNC) requirements.txt
+	@echo "✓ Development installation complete"
+
+lock:  ## Update dependency lock file
+	$(UV_COMPILE) pyproject.toml -o requirements.txt
+
+format:  ## Format code with black
+	$(PYTHON) -m black $(SRC_DIR) $(TEST_DIR)
+
+lint:  ## Check code with ruff and mypy
+	@echo "Running Ruff..."
+	$(PYTHON) -m ruff check $(SRC_DIR) $(TEST_DIR)
+	@echo "Running MyPy..."
+	$(PYTHON) -m mypy $(SRC_DIR)
+
+test:  ## Run all tests with coverage
+	$(PYTEST) $(TEST_DIR) -v --cov=$(SRC_DIR) --cov-report=term-missing
+
+test-unit:  ## Run unit tests only
+	$(PYTEST) $(TEST_DIR)/unit -v
+
+test-integration:  ## Run integration tests only
+	$(PYTEST) $(TEST_DIR)/integration -v
+
+clean:  ## Clean up cache and artifacts
+	rm -rf .venv
+	rm -rf .pytest_cache
+	rm -rf .ruff_cache
+	rm -rf .mypy_cache
+	rm -rf __pycache__
+	rm -rf site
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+
+docs:  ## Build documentation
+	$(PYTHON) -m mkdocs build
+
+docs-serve:  ## Serve documentation locally
+	$(PYTHON) -m mkdocs serve

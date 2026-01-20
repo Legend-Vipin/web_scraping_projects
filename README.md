@@ -4,232 +4,365 @@
 ![uv](https://img.shields.io/badge/uv-enabled-purple.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-A collection of professional, production-grade web scraping tools built with Python 3.11. This repository demonstrates best practices in web scraping, including robust error handling, anti-detection techniques, and structured data extraction.
+A collection of professional, production-grade web scraping tools built with Python 3.11+. This repository demonstrates best practices in web scraping, including robust error handling, anti-detection techniques, modular architecture, and structured data extraction.
 
 ---
 
 ## ✨ Features
 
-*   **Modular Architecture**: Separate projects for E-commerce, Job Portals, News Aggregation, and Real Estate.
-*   **Modern Tooling**: Built with `uv` for lightning-fast dependency management (compatible with `pip`).
-*   **Cross-Platform**: Full support for Windows, macOS, and Linux (including Kali/Arch).
-*   **Robust Logging**: Detailed logs for every operation to aid debugging.
-*   **Data Export**: Automatically saves data in CSV and JSON formats.
+- **Modular Architecture**: Clean `src/` layout with separate modules for E-commerce, Jobs, News, and Real Estate
+- **Common Utilities**: Shared logging, browser automation, and data processing utilities
+- **Modern Tooling**: Built with `uv` for lightning-fast dependency management (pip compatible)
+- **Anti-Detection**: Stealth browser configurations and randomized behaviors
+- **Robust Logging**: Rotating file handlers with color-coded console output
+- **Cross-Platform**: Full support for Windows, macOS, and Linux
+- **Data Export**: Automatically saves data in CSV and JSON formats
 
 ---
 
-## � Folder Structure
+## 📁 Project Structure
 
-```tree
+```
 web_scraping_projects/
-├── ecommerce_price_tracker/    # Tracks product prices on Amazon/Flipkart
-│   ├── tracker.py
-│   ├── requirements.txt
-│   └── tracker.log
-├── job_portal_scraper/         # Scrapes job listings
-│   ├── scraper.py
-│   ├── requirements.txt
-│   └── scraper.log
-├── news_headline_aggregator/   # Aggregates news headlines
-│   ├── aggregator.py
-│   ├── requirements.txt
-│   └── aggregator.log
-├── real_estate_crawler/        # Crawls real estate listings
-│   ├── crawler.py
-│   ├── requirements.txt
-│   └── crawler.log
-├── .gitignore
-├── LICENSE
+├── src/                      # Source code directory
+│   ├── common/              # Shared utilities
+│   │   ├── logger.py        # Centralized logging
+│   │   ├── browser.py       # Browser automation helpers
+│   │   └── utils.py         # Data processing utilities
+│   ├── ecommerce/           # E-commerce price tracker (Amazon/Flipkart)
+│   │   └── tracker.py
+│   ├── jobs/                # Job portal scraper (Naukri)
+│   │   └── scraper.py
+│   ├── news/                # News aggregator (TOI/Hindu/NDTV)
+│   │   └── aggregator.py
+│   └── realestate/          # Real estate crawler (99acres)
+│       └── crawler.py
+├── data/                    # Output data files (CSV/JSON)
+├── logs/                    # Log files with rotation
+├── config/                  # Configuration files
+│   └── .env.example        # Environment variable template
+├── tests/                   # Test directory
+├── pyproject.toml          # Modern Python packaging config
+├── requirements.txt         # Consolidated dependencies
+├── Makefile                 # Helpful commands
+├── setup.sh                 # Automated setup script
 └── README.md
+
+```
+
+---
+
+## 🚀 Quick Start
+
+### One-Command Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/Legend-Vipin/web_scraping_projects
+cd web_scraping_projects
+
+# Run automated setup (creates venv, installs dependencies)
+./setup.sh
+```
+
+### Manual Setup
+
+If you prefer manual control:
+
+```bash
+# Create virtual environment
+make install
+
+# Install Playwright browsers
+make browsers
+
+# View all available commands
+make help
 ```
 
 ---
 
 ## 🛠️ Requirements
 
-*   **Python 3.11+**
-*   **uv** (Recommended) or **pip**
-*   **Git**
+- **Python 3.11+**
+- **uv** (Recommended for faster installs) or **pip**
+- **Git**
 
----
+### Installing uv (Optional but Recommended)
 
-## 📥 Installation
-
-### 🪟 Windows
-
-1.  **Install Python**:
-    Download and install Python 3.11+ from the [official website](https://www.python.org/downloads/) or via `uv` (see below). Ensure you check **"Add Python to PATH"**.
-
-2.  **Install `uv` (PowerShell)**:
-    ```powershell
-    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-    ```
-
-3.  **Clone the Repository**:
-    ```powershell
-    git clone https://github.com/Legend-Vipin/web_scraping_projects
-    cd web_scraping_projects
-    ```
-
-### 🍎 macOS
-
-1.  **Install Homebrew** (if not installed):
-    ```bash
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    ```
-
-2.  **Install Python & uv**:
-    ```bash
-    brew install python@3.11 uv
-    ```
-
-3.  **Clone the Repository**:
-    ```bash
-    git clone https://github.com/Legend-Vipin/web_scraping_projects
-    cd web_scraping_projects
-    ```
-
-### 🐧 Linux (Ubuntu/Debian + Arch + Kali)
-
-#### Ubuntu / Debian / Kali
-1.  **Update & Install Basics**:
-    ```bash
-    sudo apt update && sudo apt install -y python3 python3-pip git curl
-    ```
-    *(Note for Kali Users: Ensure your repositories are updated. You may need to use `venv` for all pip operations due to PEP 668).*
-
-2.  **Install `uv`**:
-    ```bash
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    ```
-
-#### Arch Linux
-1.  **Install Dependencies**:
-    ```bash
-    sudo pacman -S python python-pip uv git
-    ```
-
----
-
-## ⚙️ Environment Setup
-
-We recommend using **uv** for the fastest and most reliable experience.
-
-### Option A: Using `uv` (Recommended)
-
-1.  **Create Virtual Environment**:
-    ```bash
-    uv venv
-    ```
-    *Windows users: This logs strictly to `v` folder by default in some configs, or standard `.venv`.*
-
-2.  **Activate Environment**:
-    *   **Linux/macOS**: `source .venv/bin/activate`
-    *   **Windows**: `.venv\Scripts\activate`
-
-3.  **Install Dependencies**:
-    ```bash
-    uv pip install -r requirements.txt
-    ```
-    *Or to sync all dependencies at once if a lockfile existed:*
-    ```bash
-    uv sync
-    ```
-
-### Option B: Using Standard `pip`
-
-1.  **Create Virtual Environment**:
-    ```bash
-    python3 -m venv venv
-    ```
-
-2.  **Activate Environment**:
-    *   **Linux/macOS**: `source venv/bin/activate`
-    *   **Windows**: `venv\Scripts\activate`
-
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
----
-
-## 🚀 Running the Project
-
-Navigate to the specific project folder you want to run.
-
-**Example: E-commerce Price Tracker**
-
+**Linux/macOS:**
 ```bash
-cd ecommerce_price_tracker
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-**Using `uv`:**
-```bash
-uv run tracker.py
+**Windows (PowerShell):**
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-**Using Standard Python:**
+**Homebrew (macOS):**
 ```bash
-# Ensure venv is active
-python tracker.py
+brew install uv
 ```
 
 ---
 
-## 📦 Updating Dependencies
+## 💻 Usage
 
-**With `uv`:**
+### Running Scrapers
+
+Activate the virtual environment first:
 ```bash
-uv pip compile requirements.in -o requirements.txt  # If using .in files
-# Or simply update installed packages
-uv pip install -U -r requirements.txt
+source .venv/bin/activate   # Linux/macOS
+.venv\Scripts\activate      # Windows
 ```
 
-**With `pip`:**
+Then run any scraper using make commands:
+
 ```bash
-pip install -U -r requirements.txt
+# E-commerce Price Tracker (Amazon + Flipkart)
+make run-ecommerce
+# Options: --query "laptops" --pages 3 --headless
+
+# Job Portal Scraper (Naukri)
+make run-job
+# Options: --role "python developer" --location "remote"
+
+# News Headline Aggregator (TOI, Hindu, NDTV)
+make run-news
+# No options needed
+
+# Real Estate Crawler (99acres)
+make run-real
+# Options: --city "pune"
+```
+
+### Custom Arguments
+
+Run scrapers directly with custom arguments:
+
+```bash
+# E-commerce with custom search
+python src/ecommerce/tracker.py --query "gaming laptops" --pages 5 --no-headless
+
+# Jobs with specific criteria
+python src/jobs/scraper.py --role "data scientist" --location "bangalore"
+
+# Real estate for specific city
+python src/realestate/crawler.py --city "mumbai"
 ```
 
 ---
 
-## 📝 Logs & Troubleshooting
+## 📊 Output
 
-### Logs Location
-Each sub-project writes logs to its own directory:
-*   `ecommerce_price_tracker/tracker.log`
-*   `job_portal_scraper/scraper.log`
-*   etc.
+### Data Files
+All scraped data is saved to the `data/` directory:
 
-### Troubleshooting
+```
+data/
+├── gaming_laptops_20260120_163000.csv
+├── gaming_laptops_20260120_163000.json
+├── jobs_20260120_163500.csv
+├── headlines_20260120_163559.csv
+└── realestate_20260120_164000.csv
+```
 
-*   **"Module not found"**: Ensure your virtual environment is activated (`source .venv/bin/activate`).
-*   **Permission Denied (Linux/Mac)**: You might need to `chmod +x` scripts or check folder permissions.
-*   **Kali Linux**: If `pip` fails with "externally-managed-environment", use a virtual environment (`uv venv` or `python3 -m venv .venv`).
+### Log Files
+Detailed logs are saved to the `logs/` directory with automatic rotation:
+
+```
+logs/
+├── ecommerce_tracker.log      # Current log
+├── ecommerce_tracker.log.1    # Backup 1 (10MB max each)
+├── job_scraper.log
+├── news_aggregator.log
+└── realestate_crawler.log
+```
 
 ---
 
-## 💡 Recommendations
+## ⚙️ Configuration
 
-### Recommended Tools
-*   **VS Code Extensions**:
-    *   Python (Microsoft)
-    *   Pylance
-    *   Ruff (for linting)
-*   **CLI Tools**:
-    *   `jq` (for processing JSON output on CLI)
-    *   `httpie` (alternative to curl)
+Copy the example environment file and customize:
 
-### Security Notes
-*   Never commit API keys to GitHub.
-*   Use environment variables for sensitive data.
+```bash
+cp config/.env.example config/.env
+nano config/.env  # Edit your settings
+```
+
+Available settings:
+- `HEADLESS` - Run browsers in headless mode (true/false)
+- `MAX_PAGES` - Maximum pages to scrape per session
+- `REQUEST_TIMEOUT` - Request timeout in seconds
+- `BLOCK_IMAGES` - Block images for faster scraping
+- And more...
+
+---
+
+## 🧰 Development
+
+### Available Make Commands
+
+Run `make help` to see all commands:
+
+```
+make install         # Create venv & install dependencies
+make browsers        # Install Playwright browsers
+make run-ecommerce   # Run e-commerce tracker
+make run-job         # Run job scraper
+make run-news        # Run news aggregator
+make run-real        # Run real estate crawler
+make clean           # Remove generated files
+make clean-all       # Remove venv too
+make format          # Format code with black
+make lint            # Lint code with ruff
+make help            # Show all commands
+```
+
+### Code Quality Tools
+
+Install development dependencies:
+```bash
+pip install '.[dev]'  # Includes: pytest, black, ruff, mypy
+```
+
+Then use:
+```bash
+make format   # Auto-format code
+make lint     # Check code quality
+```
+
+---
+
+## 📝 Troubleshooting
+
+### Common Issues
+
+**"Module not found" error**
+```bash
+# Ensure virtual environment is activated
+source .venv/bin/activate
+```
+
+**"Permission denied" on setup.sh**
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+**Playwright browsers not installed**
+```bash
+make browsers
+# or
+python -m playwright install
+```
+
+**CAPTCHA detected**
+- Increase delays between requests
+- Use `--no-headless` to see what's happening
+- Check if site has rate limiting
+
+**No data collected**
+- Website structure may have changed
+- Check logs in `logs/` directory for errors
+- Try with `--no-headless` to debug visually
+
+---
+
+## 🏗️ Architecture
+
+### Common Utilities
+
+The `src/common/` module provides reusable components:
+
+- **logger.py**: Centralized logging with color output and file rotation
+- **browser.py**: Anti-detection browser setup, safe navigation, auto-scrolling
+- **utils.py**: Data extraction helpers, price cleaning, text processing
+
+### Scraper Modules
+
+Each scraper in `src/` follows a consistent pattern:
+1. Import common utilities
+2. Define scraper class
+3. Implement extraction logic
+4. Save results to `data/` directory
+5. Log activities to `logs/` directory
+
+---
+
+## 🔒 Best Practices
+
+### Security
+- Never commit `.env` files or API keys
+- Use environment variables for sensitive data
+- Review `.gitignore` to ensure proper exclusions
 
 ### Performance
-*   **Python Version Manager**: `uv` is recommended over `pyenv` and `conda` for speed.
-*   **Libraries**: We use standard, high-performance libraries. Consider `aiohttp` or `playwright` for more complex async scraping needs in the future.
+- Use `uv` for 10-100x faster dependency installs
+- Enable image blocking for faster page loads
+- Implement appropriate delays to avoid rate limiting
+
+### Scraping Ethics
+- Respect `robots.txt` files
+- Don't overwhelm servers with requests
+- Add delays between requests
+- Use data responsibly
+
+---
+
+## 📚 Project Specifics
+
+### E-commerce Tracker
+- **Sites**: Amazon India, Flipkart
+- **Data**: Product title, price, rating, reviews, availability
+- **Pagination**: Supports multiple pages
+
+### Job Scraper
+- **Sites**: Naukri.com
+- **Data**: Job title, company, experience, salary, location
+- **Custom**: Search by role and location
+
+### News Aggregator
+- **Sites**: Times of India, The Hindu, NDTV
+- **Data**: Headlines, links, timestamps
+- **Concurrent**: Scrapes all sites simultaneously
+
+### Real Estate Crawler
+- **Sites**: 99acres.com
+- **Data**: Property title, price, location, link
+- **Custom**: Search by city
 
 ---
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📧 Contact
+
+**Author**: Legend-Vipin  
+**Repository**: [web_scraping_projects](https://github.com/Legend-Vipin/web_scraping_projects)
+
+---
+
+## ⭐ Acknowledgments
+
+- [Playwright](https://playwright.dev/) - Browser automation
+- [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/) - HTML parsing
+- [Pandas](https://pandas.pydata.org/) - Data processing
+- [uv](https://github.com/astral-sh/uv) - Fast Python package manager
