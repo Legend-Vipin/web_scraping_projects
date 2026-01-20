@@ -1,28 +1,27 @@
 """E-commerce price tracker for Amazon and Flipkart with async support."""
 
-import asyncio
 import argparse
+import asyncio
 from datetime import datetime
-from typing import List, Dict, Optional
-from pathlib import Path
+from typing import Dict, List, Optional
 from urllib.parse import urljoin
 
 import pandas as pd
 from bs4 import BeautifulSoup
-from playwright.async_api import async_playwright, Page
+from playwright.async_api import async_playwright
 
 # Import common utilities
 from src.common import (
-    setup_logger,
+    auto_scroll,
+    clean_price,
+    extract_attr,
+    extract_text,
+    filter_valid_data,
     get_config,
     get_stealth_context,
     safe_goto,
-    auto_scroll,
-    clean_price,
-    extract_text,
-    extract_attr,
+    setup_logger,
     validate_product_data,
-    filter_valid_data,
 )
 
 # Configuration
@@ -30,15 +29,13 @@ config = get_config()
 
 # Setup logger
 logger = setup_logger(
-    name="EcommerceTracker",
-    log_file="ecommerce_tracker.log",
-    level=10 if config.debug else 20
+    name="EcommerceTracker", log_file="ecommerce_tracker.log", level=10 if config.debug else 20
 )
 
 
 class Product:
     """Product data structure."""
-    
+
     def __init__(
         self,
         platform: str,
@@ -48,7 +45,7 @@ class Product:
         reviews: Optional[str],
         url: str,
         image_url: Optional[str],
-        availability: str
+        availability: str,
     ):
         self.platform = platform
         self.title = title
@@ -67,7 +64,7 @@ class Product:
 
 class EcommerceScraper:
     """E-commerce scraper for Amazon and Flipkart."""
-    
+
     def __init__(self, query: str, max_pages: int = 5, headless: bool = True):
         self.query = query
         self.max_pages = max_pages
@@ -78,7 +75,7 @@ class EcommerceScraper:
     async def scrape_amazon(self) -> None:
         """Scrape Amazon India for products."""
         logger.info(f"--- Starting Amazon Scrape: '{self.query}' ---")
-        
+
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=self.headless)
             context = await get_stealth_context(browser)
@@ -98,7 +95,7 @@ class EcommerceScraper:
                     await auto_scroll(page)
 
                     content = await page.content()
-                    soup = BeautifulSoup(content, 'lxml')
+                    soup = BeautifulSoup(content, "lxml")
 
                     # Check for CAPTCHA/blocking
                     if "Enter the characters you see below" in soup.text:
@@ -114,22 +111,15 @@ class EcommerceScraper:
                     new_items = 0
                     for item in containers:
                         try:
-                            title = extract_text(
-                                item,
-                                ["h2 a span", "h2", "span.a-text-normal"]
-                            )
+                            title = extract_text(item, ["h2 a span", "h2", "span.a-text-normal"])
                             if not title:
                                 continue
 
                             # Get product URL
-                            link_suffix = extract_attr(
-                                item,
-                                ["h2 a", "a.a-link-normal"],
-                                "href"
-                            )
+                            link_suffix = extract_attr(item, ["h2 a", "a.a-link-normal"], "href")
                             if not link_suffix:
                                 continue
-                            
+
                             url = urljoin(base_url, link_suffix)
 
                             # Skip duplicates
@@ -140,23 +130,18 @@ class EcommerceScraper:
 
                             # Extract price
                             price_raw = extract_text(
-                                item,
-                                ["span.a-price-whole", "span.a-offscreen"]
+                                item, ["span.a-price-whole", "span.a-offscreen"]
                             )
                             price = clean_price(price_raw)
 
                             # Extract rating
-                            rating = extract_text(
-                                item,
-                                ["span.a-icon-alt", "i.a-icon-star-small"]
-                            )
+                            rating = extract_text(item, ["span.a-icon-alt", "i.a-icon-star-small"])
                             if rating:
-                                rating = rating.split(' ')[0]
+                                rating = rating.split(" ")[0]
 
                             # Extract reviews
                             reviews = extract_text(
-                                item,
-                                ["span.a-size-base.s-underline-text", "span.a-size-base"]
+                                item, ["span.a-size-base.s-underline-text", "span.a-size-base"]
                             )
 
                             # Extract image
@@ -176,7 +161,7 @@ class EcommerceScraper:
                                 reviews=reviews,
                                 url=url,
                                 image_url=img_url,
-                                availability=availability
+                                availability=availability,
                             )
                             self.results.append(product.to_dict())
                             new_items += 1
@@ -202,7 +187,7 @@ class EcommerceScraper:
     async def scrape_flipkart(self) -> None:
         """Scrape Flipkart for products."""
         logger.info(f"--- Starting Flipkart Scrape: '{self.query}' ---")
-        
+
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=self.headless)
             context = await get_stealth_context(browser)
@@ -222,13 +207,13 @@ class EcommerceScraper:
                     await auto_scroll(page)
 
                     content = await page.content()
-                    soup = BeautifulSoup(content, 'lxml')
+                    soup = BeautifulSoup(content, "lxml")
 
                     # Find product containers (multiple possible layouts)
                     containers = (
-                        soup.select("div._1AtVbE") +
-                        soup.select("div._75nlfW") +
-                        soup.select("div[data-id]")
+                        soup.select("div._1AtVbE")
+                        + soup.select("div._75nlfW")
+                        + soup.select("div[data-id]")
                     )
 
                     # Filter valid containers
@@ -243,10 +228,9 @@ class EcommerceScraper:
                         try:
                             # Extract title
                             title = extract_text(
-                                item,
-                                ["div.KzDlHZ", "div._4rR01T", "a.s1Q9rs", "div.name"]
+                                item, ["div.KzDlHZ", "div._4rR01T", "a.s1Q9rs", "div.name"]
                             )
-                            
+
                             # Fallback: get text from link
                             if not title:
                                 link = item.select_one("a[href]")
@@ -258,13 +242,11 @@ class EcommerceScraper:
 
                             # Get product URL
                             link_suffix = extract_attr(
-                                item,
-                                ["a.CGtC98", "a._1fQZEK", "a.s1Q9rs", "a[href]"],
-                                "href"
+                                item, ["a.CGtC98", "a._1fQZEK", "a.s1Q9rs", "a[href]"], "href"
                             )
                             if not link_suffix:
                                 continue
-                            
+
                             url = urljoin(base_url, link_suffix)
 
                             # Skip duplicates
@@ -275,8 +257,7 @@ class EcommerceScraper:
 
                             # Extract price
                             price_raw = extract_text(
-                                item,
-                                ["div.Nx9bqj", "div._30jeq3", "div._25b18c ._30jeq3"]
+                                item, ["div.Nx9bqj", "div._30jeq3", "div._25b18c ._30jeq3"]
                             )
                             price = clean_price(price_raw)
 
@@ -303,7 +284,7 @@ class EcommerceScraper:
                                 reviews=reviews,
                                 url=url,
                                 image_url=img_url,
-                                availability=availability
+                                availability=availability,
                             )
                             self.results.append(product.to_dict())
                             new_items += 1
@@ -315,7 +296,7 @@ class EcommerceScraper:
                     logger.info(f"Page {page_num}: Extracted {new_items} items.")
 
                     # Find next page
-                    next_btn = soup.find('a', string="Next")
+                    next_btn = soup.find("a", string="Next")
                     if not next_btn:
                         next_btns = soup.select("a._1LKTO3")
                         for btn in next_btns:
@@ -351,10 +332,9 @@ class EcommerceScraper:
             return
 
         # Generate filenames
-        clean_query = "".join(
-            c for c in self.query
-            if c.isalnum() or c in (' ', '_', '-')
-        ).replace(' ', '_')
+        clean_query = "".join(c for c in self.query if c.isalnum() or c in (" ", "_", "-")).replace(
+            " ", "_"
+        )
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         csv_file = config.data_dir / f"{clean_query}_{timestamp}.csv"
@@ -364,51 +344,27 @@ class EcommerceScraper:
         df = pd.DataFrame(valid_data)
 
         if config.output_format in ["csv", "both"]:
-            df.to_csv(csv_file, index=False, encoding='utf-8')
+            df.to_csv(csv_file, index=False, encoding="utf-8")
             logger.info(f"Saved {len(df)} products to {csv_file}")
 
         if config.output_format in ["json", "both"]:
-            df.to_json(json_file, orient='records', indent=2)
+            df.to_json(json_file, orient="records", indent=2)
             logger.info(f"Saved {len(df)} products to {json_file}")
 
 
 async def run() -> None:
     """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Amazon/Flipkart E-commerce Price Tracker"
-    )
+    parser = argparse.ArgumentParser(description="Amazon/Flipkart E-commerce Price Tracker")
+    parser.add_argument("--query", type=str, default="gaming laptops", help="Search query")
+    parser.add_argument("--pages", type=int, default=3, help="Max pages per site (default: 3)")
     parser.add_argument(
-        "--query",
-        type=str,
-        default="gaming laptops",
-        help="Search query"
+        "--headless", action="store_true", default=True, help="Headless mode (default)"
     )
-    parser.add_argument(
-        "--pages",
-        type=int,
-        default=3,
-        help="Max pages per site (default: 3)"
-    )
-    parser.add_argument(
-        "--headless",
-        action='store_true',
-        default=True,
-        help="Headless mode (default)"
-    )
-    parser.add_argument(
-        "--no-headless",
-        action="store_false",
-        dest="headless",
-        help="Show browser"
-    )
+    parser.add_argument("--no-headless", action="store_false", dest="headless", help="Show browser")
 
     args = parser.parse_args()
 
-    scraper = EcommerceScraper(
-        query=args.query,
-        max_pages=args.pages,
-        headless=args.headless
-    )
+    scraper = EcommerceScraper(query=args.query, max_pages=args.pages, headless=args.headless)
 
     # Run scrapers sequentially to avoid rate limits
     try:

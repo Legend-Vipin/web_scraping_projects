@@ -3,7 +3,7 @@
 # ============================================================================
 # Quick commands to manage the project
 
-.PHONY: venv install browsers clean run-ecommerce run-job run-news run-real format lint test help
+.PHONY: venv install browsers clean run-ecommerce run-job run-news run-real run-all scrape format lint test help
 
 # Default target
 .DEFAULT_GOAL := help
@@ -25,10 +25,10 @@ install: venv  ## Install dependencies
 	@echo "Installing dependencies..."
 	@if command -v uv >/dev/null 2>&1; then \
 		uv pip install --upgrade pip setuptools wheel; \
-		uv pip install -r requirements.txt; \
+		uv pip install -e ".[dev]"; \
 	else \
 		.venv/bin/python -m pip install --upgrade pip setuptools wheel; \
-		.venv/bin/pip install -r requirements.txt; \
+		.venv/bin/pip install -e ".[dev]"; \
 	fi
 	@echo "✓ Dependencies installed"
 
@@ -73,6 +73,21 @@ run-real:  ## Run real estate crawler
 		.venv/bin/python src/realestate/crawler.py; \
 	fi
 
+run-all:  ## Run all scrapers sequentially
+	@echo "🚀 Running all scrapers..."
+	@if command -v uv >/dev/null 2>&1; then \
+		uv run python scrape.py all; \
+	else \
+		.venv/bin/python scrape.py all; \
+	fi
+
+scrape:  ## Run master CLI (usage: make scrape ARGS="<command> [options]")
+	@if command -v uv >/dev/null 2>&1; then \
+		uv run python scrape.py $(ARGS); \
+	else \
+		.venv/bin/python scrape.py $(ARGS); \
+	fi
+
 # ----------------------------------------------------------------------------
 # Cleanup
 # ----------------------------------------------------------------------------
@@ -114,9 +129,13 @@ lint:  ## Lint code with ruff (requires dev dependencies)
 		exit 1; \
 	fi
 
-test:  ## Run tests (placeholder for future)
-	@echo "No tests configured yet"
-	@echo "Add tests in tests/ directory and run with pytest"
+test:  ## Run tests
+	@echo "Running tests..."
+	@if command -v uv >/dev/null 2>&1; then \
+		uv run pytest -v; \
+	else \
+		.venv/bin/python -m pytest -v; \
+	fi
 
 # ----------------------------------------------------------------------------
 # Help

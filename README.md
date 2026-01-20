@@ -42,8 +42,7 @@ web_scraping_projects/
 ├── config/                  # Configuration files
 │   └── .env.example        # Environment variable template
 ├── tests/                   # Test directory
-├── pyproject.toml          # Modern Python packaging config
-├── requirements.txt         # Consolidated dependencies
+├── pyproject.toml          # Project config & dependencies (PEP 621)
 ├── Makefile                 # Helpful commands
 ├── setup.sh                 # Automated setup script
 └── README.md
@@ -88,7 +87,7 @@ make help
 - **uv** (Recommended for faster installs) or **pip**
 - **Git**
 
-### Installing uv (Optional but Recommended)
+### Installing uv (Recommended)
 
 **Linux/macOS:**
 ```bash
@@ -104,6 +103,8 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 ```bash
 brew install uv
 ```
+
+> **Note**: All dependencies are defined in `pyproject.toml` following modern Python standards (PEP 621).
 
 ---
 
@@ -222,15 +223,20 @@ make help            # Show all commands
 
 ### Code Quality Tools
 
-Install development dependencies:
+Development dependencies are included with the standard installation. You can also install only runtime dependencies:
 ```bash
-pip install '.[dev]'  # Includes: pytest, black, ruff, mypy
+# Install with dev dependencies (default)
+uv pip install -e ".[dev]"
+
+# Or install only runtime dependencies
+uv pip install -e .
 ```
 
-Then use:
+Available dev tools:
 ```bash
-make format   # Auto-format code
-make lint     # Check code quality
+make format   # Auto-format code with black
+make lint     # Check code quality with ruff
+make test     # Run tests with pytest
 ```
 
 ---

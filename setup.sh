@@ -39,7 +39,7 @@ if command -v uv >/dev/null 2>&1; then
     
     echo "Installing dependencies..."
     uv pip install --upgrade pip setuptools wheel
-    uv pip install -r "$ROOT_DIR/requirements.txt"
+    uv pip install -e ".[dev]"
     
     echo ""
     echo "Installing Playwright browsers..."
@@ -59,7 +59,7 @@ else
     
     echo "Installing dependencies..."
     "$VENV_DIR/bin/python" -m pip install --upgrade pip setuptools wheel
-    "$VENV_DIR/bin/pip" install -r "$ROOT_DIR/requirements.txt"
+    "$VENV_DIR/bin/pip" install -e ".[dev]"
     
     echo ""
     echo "Installing Playwright browsers..."
